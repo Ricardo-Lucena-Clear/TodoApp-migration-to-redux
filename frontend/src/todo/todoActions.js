@@ -1,6 +1,11 @@
 import axios from "axios"
 
 const URL = "http://localhost:3003/api/todos"
+/*
+Middleware multi-executa mais de uma ação de uma vez
+Middleware promise- so executa a ação depois de fato ter terminado uma requisição anterior
+Middleware thunk-nao retorna mais uma ação e sim um metodo (dispatch), cada dispatch é setado com .then
+*/
 
 export const changeDescription = event => ({
     type: 'DESCRIPTION_CHANGED',
@@ -14,10 +19,12 @@ export const search =() => {
         payload: request
     }
 }
+
+
 export const add = (description) =>{
-    const request = axios.post(URL, {description})
-    return[
-        {type:"TODO_ADDED",payload:request},
-        search()
-]
+    return dispatch =>{
+        axios.post(URL, {description})
+        .then(resp => dispatch({type:"TODO_ADDED", payload: resp.data}))
+        .then(resp => dispatch(search()))
+    }
 }
